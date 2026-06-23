@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LingoUp Premium 🚀</title>
+    <!-- Librería para la serpentina y confeti premium -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.7);
+            --card-shadow: 0 40px 80px rgba(15, 23, 42, 0.08);
+            --fire-glow: 0 0 40px rgba(234, 179, 8, 0.6);
+        }
+
+        body {
+            font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            transition: background 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            overflow-x: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            width: 100%;
+            max-width: 650px;
+            display: none; 
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            box-sizing: border-box;
+        }
+
+        .score-box {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .lives-box {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            font-weight: 800;
+            color: #ef4444;
+            display: none;
+            letter-spacing: 2px;
+        }
+
+        .progress-container {
+            width: 45%;
+            height: 14px;
+            background: rgba(15, 23, 42, 0.08);
+            border-radius: 50px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            border-radius: 50px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* MAIN MENU */
+        .menu-container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 40px 30px;
+            border-radius: 40px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            box-sizing: border-box;
+            animation: scaleUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+
+        .menu-title {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 5px;
+            letter-spacing: -2px;
+            background: linear-gradient(45deg, #2563eb, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .menu-subtitle {
+            font-size: 1.1rem;
+            color: #475569;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        /* STATS PANEL */
+        .stats-panel {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--glass-border);
+            padding: 12px 25px;
+            border-radius: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.02);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        .stat-badge span {
+            color: #2563eb;
+            font-weight: 800;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .mix-row {
+            grid-column: span 2;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 650px) {
+            .category-grid { grid-template-columns: 1fr; }
+            .mix-row { grid-column: span 1; }
+        }
+
+        .category-card {
+            border: none;
+            border-radius: 28px;
+            padding: 0;
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            width: 100%;
+        }
+
+        .category-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+        }
+
+        .category-img-box {
+            font-size: 2.5rem;
+            width: 100px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.25);
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .category-card:hover .category-img-box {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .category-info-box {
+            padding: 15px 20px;
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .category-info-box h3 {
+            margin: 0 0 4px 0;
+            font-size: 1.25rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-info-box p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .medal-badge {
+            display: none;
+            font-size: 1.2rem;
+            animation: popCheck 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Category Themes */
+        .cat-animals { background: linear-gradient(135deg, #fef08a 0%, #fde047 100%); color: #713f12; }
+        .cat-clothes { background: linear-gradient(135deg, #f4d5fd 0%, #e9d5ff 100%); color: #581c87; }
+        .cat-nature { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); color: #14532d; }
+        .cat-weather { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #1e3a8a; }
+        .cat-vegetables { background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%); color: #7c2d12; }
+        .cat-fruit { background: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%); color: #881337; }
+        
+        .cat-challenge { 
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); 
+            color: white !important;
+        }
+        .cat-challenge .category-info-box h3, .cat-challenge .category-info-box p { color: white !important; }
+
+        /* PRACTICE CONTAINER */
+        .app-container {
+            display: none;
+            max-width: 500px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            padding: 35px;
+            border-radius: 40px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            box-sizing: border-box;
+            position: relative;
+            transition: box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+
+        .app-container.gold-glow {
+            box-shadow: var(--fire-glow), var(--card-shadow);
+            border-color: rgba(234, 179, 8, 0.6);
+        }
+
+        .streak-fire-badge {
+            display: none;
+            font-size: 3.5rem;
+            margin: -10px auto 10px auto;
+            animation: firePulse 0.6s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 0 12px #f97316);
+            width: fit-content;
+        }
+
+        @keyframes firePulse {
+            from { transform: scale(1); filter: drop-shadow(0 0 10px #f97316); }
+            to { transform: scale(1.25); filter: drop-shadow(0 0 25px #ef4444); }
+        }
+
+        .shake-animation {
+            animation: shake 0.4s ease-in-out;
+            border: 2px solid #ef4444 !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .header-info {
+            font-size: 0.85rem;
+            color: #64748b;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+            padding-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .vocab-card { display: none; }
+        .vocab-card.active { display: block; animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .vocab-word {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin: 0;
+            color: #0f172a;
+            letter-spacing: -1.5px;
+        }
+
+        .vocab-translation {
+            font-size: 1.05rem;
+            color: #1e3a8a;
+            margin-top: 6px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            background: rgba(219, 234, 254, 0.7);
+            display: inline-block;
+            padding: 5px 22px;
+            border-radius: 50px;
+            border: 1px solid rgba(191, 219, 254, 0.8);
+            text-transform: capitalize;
+        }
+
+        /* DEFINITION BOX */
+        .vocab-definition {
+            font-size: 1rem;
+            color: #334155;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            padding: 15px;
+            font-weight: 500;
+            background: rgba(15, 23, 42, 0.03);
+            border-radius: 20px;
+            border: 1px solid rgba(0,0,0,0.03);
+            text-align: left;
+        }
+
+        /* CONCEPT BOX */
+        .image-container {
+            width: 100%;
+            height: 240px;
+            border-radius: 32px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.06);
+            border: 1px solid rgba(255,255,255,0.5);
+            overflow: hidden;
+            position: relative;
+            font-size: 5.5rem;
+            letter-spacing: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .vocab-card:hover .image-container {
+            transform: scale(1.03);
+        }
+
+        .mystery-box {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+            color: white !important;
+        }
+
+        /* GRAMMAR WRITE WRAPPER */
+        .write-challenge-box {
+            display: none;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px dashed #3b82f6;
+            padding: 15px;
+            border-radius: 24px;
+            margin-bottom: 20px;
+            animation: popCheck 0.3s ease;
+        }
+
+        .write-challenge-box input {
+            width: 80%;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            border: 2px solid #cbd5e1;
+            border-radius: 14px;
+            outline: none;
+            text-align: center;
+            font-weight: bold;
+            transition: border-color 0.2s;
+        }
+
+        .write-challenge-box input:focus {
+            border-color: #3b82f6;
+        }
+
+        .write-challenge-box button {
+            margin-top: 10px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* FEEDBACK MESSAGES */
+        .feedback-msg {
+            margin: 5px auto 20px auto;
+            padding: 15px;
+            border-radius: 24px;
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            max-width: 95%;
+            box-sizing: border-box;
+            animation: popCheck 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .feedback-badge { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .feedback-text { font-size: 1rem; font-weight: 800; text-align: center; white-space: pre-line; }
+
+        .feedback-listening { background-color: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+        .feedback-listening .feedback-badge { background-color: #3b82f6; color: white; }
+        .feedback-success { background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .feedback-success .feedback-badge { background-color: #10b981; color: white; }
+        .feedback-error { background-color: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+        .feedback-error .feedback-badge { background-color: #ef4444; color: white; }
+
+        /* CONTROLS */
+        .audio-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn-card {
+            border: none;
+            padding: 14px 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 22px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #0f172a;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .btn-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08); }
+        .btn-card:active { transform: translateY(0) scale(0.97); }
+        
+        .audio-button { background-color: #d1fae5; border: 1px solid #a7f3d0; color: #065f46; }
+        .mic-button { background-color: #fef3c7; border: 1px solid #fde047; color: #713f12; }
+        .write-button { background-color: #fae8ff; border: 1px solid #e9d5ff; color: #6b21a8; }
+        .guess-button { background-color: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; }
+
+        /* NAV STYLES UPPER & BOTTOM */
+        .inline-nav-buttons {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .nav-buttons { 
+            display: flex; 
+            justify-content: center; 
+            margin-top: 10px;
+        }
+        
+        .nav-btn {
+            border: none;
+            padding: 14px 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 20px;
+            cursor: pointer;
+            color: #475569;
+            background: rgba(15, 23, 42, 0.06);
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { background: rgba(15, 23, 42, 0.1); transform: translateY(-1px); }
+        .btn-menu-back { background-color: white; color: #0f172a; font-weight: 800; border: 1px solid rgba(0,0,0,0.06); width: 100%; max-width: 150px; }
+
+        /* END GAME SCREENS */
+        .victory-screen {
+            display: none;
+            animation: scaleUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .victory-image-placeholder { font-size: 5.5rem; margin-bottom: 20px; display: inline-block; animation: bounce 2s infinite; }
+        .victory-title { font-size: 2.4rem; font-weight: 800; color: #0f172a; margin: 0 0 12px 0; letter-spacing: -1px; }
+        .victory-p { font-size: 1.1rem; color: #475569; margin: 0 0 35px 0; line-height: 1.6; }
+
+        @keyframes scaleUp { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes popCheck { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<!-- MAIN MENU -->
+<div id="main-menu" class="menu-container">
+    <div class="menu-title">LingoUp</div>
+    <div class="menu-subtitle">Select a thematic module to begin your practice:</div>
+    
+    <!-- GENERAL PROGRESS PANEL -->
+    <div class="stats-panel">
+        <div class="stat-badge">⭐ Stars Acquired: <span id="menu-stars-count">0</span></div>
+        <div class="stat-badge">🏅 Modules Cleared: <span id="menu-medals-count">0 / 6</span></div>
+    </div>
+
+    <div class="category-grid">
+        
+        <button class="category-card cat-animals" onclick="startCategory('animals')">
+            <div class="category-img-box">🦁</div>
+            <div class="category-info-box">
+                <h3>Animals <span id="medal-animals" class="medal-badge">🏅</span></h3>
+                <p>15 Creatures from the wildlife kingdom</p>
+            </div>
+        </button>
+
+        <button class="category-card cat-clothes" onclick="startCategory('clothes')">
+            <div class="category-img-box">👔</div>
+            <div class="category-info-box">
+                <h3>Clothes <span id="medal-clothes" class="medal-badge">🏅</span></h3>
+                <p>15 Essential garments and accessories</p>
+            </div>
+        </button>
+
+        <button class="category-card cat-nature" onclick="startCategory('nature')">
+            <div class="category-img-box">🌲</div>
+            <div class="category-info-box">
+                <h3>Nature <span id="medal-nature" class="medal-badge">🏅</span></h3>
+                <p>15 Wonders of our environment</p>
+            </div>
+        </button>
+
+        <button class="category-card cat-weather" onclick="startCategory('weather')">
+            <div class="category-img-box">⚡</div>
+            <div class="category-info-box">
+                <h3>Weather <span id="medal-weather" class="medal-badge">🏅</span></h3>
+                <p>15 Atmospheric and global phenomena</p>
+            </div>
+        </button>
+
+        <button class="category-card cat-vegetables" onclick="startCategory('vegetables')">
+            <div class="category-img-box">🥕</div>
+            <div class="category-info-box">
+                <h3>Vegetables <span id="medal-vegetables" class="medal-badge">🏅</span></h3>
+                <p>15 Fresh and healthy farm greens</p>
+            </div>
+        </button>
+
+        <button class="category-card cat-fruit" onclick="startCategory('fruit')">
+            <div class="category-img-box">🍎</div>
+            <div class="category-info-box">
+                <h3>Fruit <span id="medal-fruit" class="medal-badge">🏅</span></h3>
+                <p>15 Sweet and delicious natural fruits</p>
+            </div>
+        </button>
+
+        <div class="mix-row">
+            <button class="category-card cat-challenge" onclick="startChallengeMode()">
+                <div class="category-img-box">🔥</div>
+                <div class="category-info-box">
+                    <h3>MIXED ULTRA CHALLENGE 🔥</h3>
+                    <p>Random extreme survival mode with 3 lives!</p>
+                </div>
+            </button>
+        </div>
+        
+    </div>
+</div>
+
+<!-- Score Tracker Bar -->
+<div id="top-bar" class="top-bar">
+    <div class="progress-container">
+        <div id="p-bar" class="progress-bar"></div>
+    </div>
+    <div id="lives-display" class="lives-box">❤️ ❤️ ❤️</div>
+    <div class="score-box">
+        ⭐ <span id="score-count">0</span>
+    </div>
+</div>
+
+<!-- Main Application Card Container -->
+<div id="app-box" class="app-container">
+    
+    <div id="streak-fire" class="streak-fire-badge">🔥</div>
+
+    <div id="cards-wrapper"></div>
+
+    <!-- Victory / Game Over Panels -->
+    <div id="victory-panel" class="victory-screen">
+        <div class="victory-image-placeholder" id="victory-icon">🏆</div>
+        <div class="victory-title" id="victory-headline">Level Completed!</div>
+        <div class="victory-p" id="victory-text">Amazing work! You successfully mastered all the concepts.</div>
+        <button class="btn-card" style="background: #4f46e5; color: white; padding: 16px 36px; margin: 0 auto;" onclick="goToMenu()">Claim Medal 🏅</button>
+    </div>
+
+    <!-- Menu Button Bottom -->
+    <div id="nav-wrapper-bottom" class="nav-buttons">
+        <button class="nav-btn btn-menu-back" onclick="goToMenu()">🏠 Menu</button>
+    </div>
+</div>
+
+<script>
+    // Dataset unchanged
+    const dataset = {
+        animals: [
+            { word: "Lion", translation: "León", combo: "🦁🥩", def: "A large, powerful wild cat that lives in groups called prides. The male has a huge mane.", bg: "#fef9c3", habitat: "Savanna King" },
+            { word: "Shark", translation: "Tiburón", combo: "🦈🌊", def: "A large fish with sharp teeth and a prominent dorsal fin, known as an ocean hunter.", bg: "#e0f2fe", habitat: "Deep Ocean" },
+            { word: "Monkey", translation: "Mono", combo: "🐒🍌", def: "A clever mammal with a long tail that loves to climb trees and eat tropical fruits.", bg: "#ccfbf1", habitat: "Jungle Canopy" },
+            { word: "Penguin", translation: "Pingüino", combo: "🐧❄️", def: "A black and white sea bird that cannot fly, but swims expertly in icy oceans.", bg: "#e0f2fe", habitat: "Antarctic Ice" },
+            { word: "Elephant", translation: "Elefante", combo: "🐘🪵", def: "The largest living land mammal, recognized by its long flexible trunk and ivory tusks.", bg: "#f1f5f9", habitat: "African Plains" },
+            { word: "Frog", translation: "Rana", combo: "🐸🪰", def: "A small amphibian with long back legs used for jumping, smooth wet skin, and big eyes.", bg: "#dcfce7", habitat: "Pond Ecosystem" },
+            { word: "Koala", translation: "Koala", combo: "🐨🍃", def: "An Australian marsupial with thick grey fur that lives in trees and eats eucalyptus leaves.", bg: "#fef3c7", habitat: "Outback Woods" },
+            { word: "Owl", translation: "Búho", combo: "🦉🌙", def: "A nocturnal bird of prey with large forward-facing eyes and completely silent flight.", bg: "#f3e8ff", habitat: "Night Forest" },
+            { word: "Turtle", translation: "Tortuga", combo: "🐢🐢", def: "A slow reptile protected by a tough shell. Many species live and travel across deep oceans.", bg: "#dcfce7", habitat: "Coral Reef" },
+            { word: "Bee", translation: "Abeja", combo: "🐝🍯", def: "A small flying insect with yellow and black stripes, famous for producing honey.", bg: "#fef3c7", habitat: "Flower Garden" },
+            { word: "Giraffe", translation: "Jirafa", combo: "🦒🦒", def: "The tallest living land animal, with an exceptionally long neck and legs.", bg: "#fef9c3", habitat: "High Trees" },
+            { word: "Tiger", translation: "Tigre", combo: "🐅🎋", def: "A large solitary wild cat with a reddish-orange coat and dark vertical stripes.", bg: "#ffedd5", habitat: "Asian Jungle" },
+            { word: "Dolphin", translation: "Delfín", combo: "🐬💦", def: "An extremely intelligent marine mammal known for its playful behavior and clicks.", bg: "#cffafe", habitat: "Warm Seas" },
+            { word: "Fox", translation: "Zorro", combo: "🦊🍂", def: "A small wild mammal with a pointed snout, bushy tail, and a reputation for being clever.", bg: "#ffedd5", habitat: "Autumn Woods" },
+            { word: "Eagle", translation: "Águila", combo: "🦅🏔️", def: "A large, powerful bird of prey with magnificent eyesight and a strong hooked beak.", bg: "#f1f5f9", habitat: "Mountain Tops" }
+        ],
+        clothes: [
+            { word: "Shirt", translation: "Camisa", combo: "👔💼", def: "A garment for the upper part of the body, usually with a collar and buttons down the front.", bg: "#f3e8ff", habitat: "Upper Garment" },
+            { word: "Pants", translation: "Pantalones", combo: "👖👟", def: "An outer garment covering the body from the waist down, with a separate part for each leg.", bg: "#e0f2fe", habitat: "Lower Body" },
+            { word: "Jacket", translation: "Chaqueta", combo: "🧥🧣", def: "A short coat, usually extending to the hips, worn over other clothes for warm insulation.", bg: "#ffedd5", habitat: "Outer Layer" },
+            { word: "Dress", translation: "Vestido", combo: "👗👠", def: "A one-piece garment for women or girls that covers the body and extends down over the legs.", bg: "#fce7f3", habitat: "Full Outfit" },
+            { word: "Shoes", translation: "Zapatos", combo: "👟🧦", def: "A pair of coverings for the feet, typically made of leather or canvas with a sturdy sole.", bg: "#f1f5f9", habitat: "Footwear" },
+            { word: "Hat", translation: "Sombrero", combo: "🎩🕶️", def: "A shaped covering for the head worn for warmth, protection from the sun, or fashion purposes.", bg: "#fef3c7", habitat: "Head Gear" },
+            { word: "Socks", translation: "Calcetines", combo: "🧦🥿", def: "A soft garment worn on the foot and lower part of the leg, inside shoes for comfort.", bg: "#dcfce7", habitat: "Foot Base" },
+            { word: "Coat", translation: "Abrigo", combo: "🧥❄️", def: "An outer piece of clothing with sleeves, worn to keep warm when outdoors during cold weather.", bg: "#f1f5f9", habitat: "Winter Wear" },
+            { word: "Skirt", translation: "Falda", combo: "👗👚", def: "A separate outer garment that hangs down from the waist, standardly worn by women and girls.", bg: "#ffe4e6", habitat: "Lower Outfit" },
+            { word: "Gloves", translation: "Guantes", combo: "🧤🧤", def: "A covering for the hand worn for protection against cold or dirt, with separate sleeves for fingers.", bg: "#cffafe", habitat: "Hand Gear" },
+            { word: "Scarf", translation: "Bufanda", combo: "🧣🍁", def: "A long strip of fabric worn around the neck or shoulders for warmth or stylish decoration.", bg: "#ffedd5", habitat: "Neck Layer" },
+            { word: "Boots", translation: "Botas", combo: "🥾⛰️", def: "Sturdy footwear covering the foot and ankle, often extending higher up the leg for heavy work.", bg: "#fef3c7", habitat: "Heavy Duty" },
+            { word: "Sweater", translation: "Suéter", combo: "🧶☕", def: "A knitted garment with long sleeves, worn over the upper body to stay cozy and warm.", bg: "#fae8ff", habitat: "Cozy Knitwear" },
+            { word: "Tie", translation: "Corbata", combo: "👔💼", def: "A narrow band of fabric worn around the shirt collar and tied in a decorative knot at the front.", bg: "#dbeafe", habitat: "Formal Style" },
+            { word: "Belt", translation: "Cinturón", combo: "👖⚙️", def: "A strip of leather or flexible material worn around the waist to support clothes or hold trousers.", bg: "#f1f5f9", habitat: "Waist Accessory" }
+        ],
+        nature: [
+            { word: "Volcano", translation: "Volcán", combo: "🌋💥", def: "A mountain with a large hole at the top through which lava and hot gases erupt.", bg: "#ffe4e6", habitat: "Geothermal Zone" },
+            { word: "Mountain", translation: "Montaña", combo: "🏔️🌲", def: "A massive landform that rises high above its surroundings, higher than a hill.", bg: "#f1f5f9", habitat: "High Highlands" },
+            { word: "River", translation: "Río", combo: "🏞️🛶", def: "A natural wide stream of fresh water flowing in a channel toward the sea.", bg: "#e0f2fe", habitat: "Fresh Valley" },
+            { word: "Cloud", translation: "Nube", combo: "☁️🕊️", def: "A visible mass of particles of condensed water vapor floating high in the atmosphere.", bg: "#f1f5f9", habitat: "Blue Sky" },
+            { word: "Rainbow", translation: "Arcoíris", combo: "🌈☀️", def: "An arch of colors formed in the sky caused by the refraction of light in water droplets.", bg: "#fae8ff", habitat: "Post-Rain Sky" },
+            { word: "Desert", translation: "Desierto", combo: "🏜️🐫", def: "A vast, dry, barren area of land, usually covered in sand, with little water.", bg: "#fef3c7", habitat: "Arid Plain" },
+            { word: "Ocean", translation: "Océano", combo: "🌊🐋", def: "The massive body of salt water that covers almost threequarters of the Earth's surface.", bg: "#cffafe", habitat: "Deep Planet" },
+            { word: "Flower", translation: "Flor", combo: "🌸🦋", def: "The beautiful colored part of a plant from which the seed or fruit develops.", bg: "#fce7f3", habitat: "Botanical Field" },
+            { word: "Lightning", translation: "Relámpago", combo: "⚡⛈️", def: "A powerful, sudden flash of electricity that occurs between a cloud and the ground.", bg: "#f3e8ff", habitat: "Electric Storm" },
+            { word: "Forest", translation: "Bosque", combo: "🌲🦌", def: "A large area covered chiefly with dense trees, plants, and wild undergrowth.", bg: "#dcfce7", habitat: "Wild Woodlands" },
+            { word: "Moon", translation: "Luna", combo: "🌙🦉", def: "The natural satellite of the earth, visible reflected by the sun's light at night.", bg: "#f3e8ff", habitat: "Outer Space" },
+            { word: "Sun", translation: "Sol", combo: "☀️🌻", def: "The star around which the earth revolves and that provides light and heat to our system.", bg: "#ffedd5", habitat: "Solar System" },
+            { word: "Island", translation: "Isla", combo: "🏝️🥥", def: "A piece of land completely surrounded by water, like a miniature paradise.", bg: "#cffafe", habitat: "Tropical Sea" },
+            { word: "Cave", translation: "Cueva", combo: "🦇⛰️", def: "A large underground chamber, typically of natural origin, inside a mountain or hill.", bg: "#f1f5f9", habitat: "Deep Underground" },
+            { word: "Star", translation: "Estrella", combo: "⭐🚀", def: "A fixed luminous point in the night sky that is a large, remote incandescent body.", bg: "#fef9c3", habitat: "Night Galaxy" }
+        ],
+        weather: [
+            { word: "Sunny", translation: "Soleado", combo: "☀️🕶️", def: "Bright with light from the sun; completely clear skies with plenty of beautiful light.", bg: "#fef3c7", habitat: "Clear Climate" },
+            { word: "Rainy", translation: "Lluvioso", combo: "🌧️☔", def: "Having a great deal of rainfall pouring down from the dark cloud layers.", bg: "#dbeafe", habitat: "Wet Climate" },
+            { word: "Windy", translation: "Ventoso", combo: "💨🍃", def: "Accompanied by strong, blowing gusts of air currents sweeping across the land.", bg: "#f1f5f9", habitat: "Air Velocity" },
+            { word: "Snowy", translation: "Nevado", combo: "☃️❄️", def: "Covered with snow or characterized by frozen crystal flakes falling from the cold skies.", bg: "#cffafe", habitat: "Wintry Storm" },
+            { word: "Stormy", translation: "Tormentoso", combo: "⛈️⚡", def: "Characterized by strong winds, lightning, thunder, and violent downpours.", bg: "#f3e8ff", habitat: "Violent Front" },
+            { word: "Cloudy", translation: "Nublado", combo: "☁️⛅", def: "Overcast with grey clouds, blocking out the bright direct light from the sun.", bg: "#f1f5f9", habitat: "Dense Layer" },
+            { word: "Foggy", translation: "Con niebla", combo: "🌫️🦺", def: "Full of thick fog near the ground level, making it very difficult to see far ahead.", bg: "#f1f5f9", habitat: "Low Visibilty" },
+            { word: "Hot", translation: "Caluroso", combo: "🥵🍦", def: "Having a high temperature that makes you sweat and crave ice-cold refreshments.", bg: "#ffedd5", habitat: "High Thermal" },
+            { word: "Cold", translation: "Frío", combo: "🥶🧥", def: "Having a low temperature, especially when compared to the comfortable human body.", bg: "#e0f2fe", habitat: "Low Thermal" },
+            { word: "Warm", translation: "Cálido", combo: "☀️🍹", def: "Having or showing a comfortable and moderate degree of heat; perfectly pleasant.", bg: "#fef3c7", habitat: "Cozy Climate" },
+            { word: "Freezing", translation: "Gelido", combo: "🥶🧊", def: "The temperature below the freezing point of water, where ice sheets begin to form.", bg: "#cffafe", habitat: "Extreme Ice" },
+            { word: "Humid", translation: "Húmedo", combo: "💦🌴", def: "A high level of water vapor or moisture trapped in the surrounding atmospheric air.", bg: "#dcfce7", habitat: "Moist Tropics" },
+            { word: "Tornado", translation: "Tornado", combo: "🌪️🚗", def: "A mobile, destructive vortex of violently rotating winds shaped like a funnel.", bg: "#f1f5f9", habitat: "Extreme Event" },
+            { word: "Thunder", translation: "Trueno", combo: "🔊⛈️", def: "A loud rumbling or crashing noise heard after a brilliant lightning flash.", bg: "#f3e8ff", habitat: "Acoustic Shock" },
+            { word: "Clear", translation: "Despejado", combo: "☀️🕊️", def: "Completely transparent sky without any clouds or structural hazards overhead.", bg: "#e0f2fe", habitat: "Perfect Sky" }
+        ],
+        vegetables: [
+            { word: "Carrot", translation: "Zanahoria", combo: "🥕🐇", def: "A tapering orange root vegetable, eaten raw or cooked, famous for improving eyesight.", bg: "#ffedd5", habitat: "Root Crops" },
+            { word: "Tomato", translation: "Tomate", combo: "🍅🥗", def: "A glossy red, juicy savory item eaten as a core ingredient in fresh salads.", bg: "#ffe4e6", habitat: "Vine Crop" },
+            { word: "Potato", translation: "Papa", combo: "🥔🍟", def: "A starchy plant tuber that grows underground, used worldwide for making French fries.", bg: "#fef3c7", habitat: "Tuber Root" },
+            { word: "Onion", translation: "Cebolla", combo: "🧅😭", def: "A round vegetable with many layers that has a strong taste and makes you cry when cut.", bg: "#f3e8ff", habitat: "Bulb Crops" },
+            { word: "Garlic", translation: "Ajo", combo: "🧄🍳", def: "A pungent bulbous plant used intensely in cooking for its strong flavoring power.", bg: "#f1f5f9", habitat: "Flavor Base" },
+            { word: "Lettuce", translation: "Lechuga", combo: "🥬🥗", def: "A cultivated plant with broad green leaves, eaten raw as the main base of salads.", bg: "#dcfce7", habitat: "Leafy Greens" },
+            { word: "Broccoli", translation: "Brócoli", combo: "🥦🌳", def: "A green vegetable with compact heads of small buds that resemble miniature trees.", bg: "#dcfce7", habitat: "Cruciferous" },
+            { word: "Corn", translation: "Maíz", combo: "🌽🍿", def: "A tall plant that produces large ears of sweet yellow kernels arranged in straight rows.", bg: "#fef3c7", habitat: "Cereal Grain" },
+            { word: "Pepper", translation: "Pimiento", combo: "🫑🌶️", def: "A hollow green, yellow, or red vegetable that can be sweet or spicy depending on variety.", bg: "#ffe4e6", habitat: "Pod Veggie" },
+            { word: "Cucumber", translation: "Pepino", combo: "🥒💦", def: "A long green skin vegetable with crisp watery flesh, popular for pickling.", bg: "#dcfce7", habitat: "Fresh Vine" },
+            { word: "Spinach", translation: "Espinaca", combo: "🥬💪", def: "A broad-leafed green vegetable, highly appreciated for giving incredible physical strength.", bg: "#dcfce7", habitat: "Super Greens" },
+            { word: "Pumpkin", translation: "Calabaza", combo: "🎃🥧", def: "A large rounded orange fruit with a thick rind, highly symbolic during Halloween seasons.", bg: "#ffedd5", habitat: "Autumn Vine" },
+            { word: "Mushroom", translation: "Champiñón", combo: "🍄🍂", def: "A fungal growth typically in the form of a domed cap on a stalk; some are edible.", bg: "#fce7f3", habitat: "Fungi Kingdom" },
+            { word: "Peas", translation: "Guisantes", combo: "🫛🌱", def: "Small, round green seeds gathered inside long pools growing on climbing leguminous vines.", bg: "#dcfce7", habitat: "Legume Pods" },
+            { word: "Cabbage", translation: "Repollo", combo: "🥬🥬", def: "A leafy green or purple vegetable forming a dense, compact round ball head.", bg: "#dcfce7", habitat: "Field Head" }
+        ],
+        fruit: [
+            { word: "Apple", translation: "Manzana", combo: "🍎🥧", def: "A round fruit with red, green, or yellow skin and a crisp, white sweet interior.", bg: "#ffe4e6", habitat: "Orchard Fruit" },
+            { word: "Banana", translation: "Plátano", combo: "🍌🐒", def: "A long curved fruit with a thick yellow skin and soft, sweet flesh inside.", bg: "#fef3c7", habitat: "Tropical Cluster" },
+            { word: "Orange", translation: "Naranja", combo: "🍊🍹", def: "A round juicy citrus fruit with a bright tough skin, packed with Vitamin C.", bg: "#ffedd5", habitat: "Citrus Grove" },
+            { word: "Strawberry", translation: "Fresa", combo: "🍓🍓", def: "A sweet soft red fruit with a seed-studded surface and a sweet aroma.", bg: "#ffe4e6", habitat: "Ground Berries" },
+            { word: "Grape", translation: "Uva", combo: "🍇🍇", def: "A small, sweet smooth-skinned juicy berry growing in clusters on woody vines.", bg: "#f3e8ff", habitat: "Vineyards" },
+            { word: "Watermelon", translation: "Sandía", combo: "🍉☀️", def: "A giant melon with a dark green rind and sweet, refreshing pink watery inside pulp.", bg: "#dcfce7", habitat: "Summer Fields" },
+            { word: "Pineapple", translation: "Piña", combo: "🍍👑", def: "A large tropical fruit with a tough spiky shell and sweet yellow interior meat.", bg: "#fef9c3", habitat: "Tropical Crown" },
+            { word: "Mango", translation: "Mango", combo: "🥭🌴", def: "A fleshy oval tropical fruit with a yellowish-red skin and smooth sweet interior pulp.", bg: "#ffedd5", habitat: "Tropical Tree" },
+            { word: "Lemon", translation: "Limón", combo: "🍋🍋", def: "An oval yellow citrus fruit with a highly sour taste, used worldwide for juices.", bg: "#fef3c7", habitat: "Acid Tree" },
+            { word: "Peach", translation: "Durazno", combo: "🍑🌸", def: "A round stone fruit with juicy yellow flesh and downy pinkish skin.", bg: "#ffedd5", habitat: "Soft Orchard" },
+            { word: "Cherry", translation: "Cereza", combo: "🍒🍰", def: "A small, round bright red stone fruit that grows hanging from long double stalks.", bg: "#ffe4e6", habitat: "Canopy Trees" },
+            { word: "Pear", translation: "Pera", combo: "🍐🍐", def: "A sweet yellowish-green fruit that is narrow at the top and wide at the base.", bg: "#dcfce7", habitat: "Cool Orchard" },
+            { word: "Avocado", translation: "Aguacate", combo: "🥑🥑", def: "A pear-shaped fruit with a rough green skin and rich creamy light-green interior pulp.", bg: "#dcfce7", habitat: "Rich Canopy" },
+            { word: "Kiwi", translation: "Kiwi", combo: "🥝🥝", def: "A small oval fruit with thin hairy brown skin and bright green flesh with black seeds.", bg: "#dcfce7", habitat: "Exotic Vine" },
+            { word: "Coconut", translation: "Coco", combo: "🥥🌊", def: "A large oval brown nut growing on high palm trees, filled with refreshing clear water.", bg: "#e0f2fe", habitat: "Coastal Palms" }
+        ]
+    };
+
+    let currentCategory = [];
+    let currentCategoryKey = "";
+    let currentCardIndex = 0;
+    let totalStars = 0;
+    let audioCtx = null;
+    let completedCategories = {};
+    let isChallengeMode = false;
+    let challengeLives = 3;
+    let isHiddenState = false; 
+    let isWritingMode = false;
+
+    let streakCount = 0;
+    let isFireModeActive = false;
+
+    window.onload = function() {
+        loadProgressData();
+    }
+
+    function loadProgressData() {
+        if(localStorage.getItem('totalStars')) {
+            totalStars = parseInt(localStorage.getItem('totalStars'));
+        }
+        document.getElementById('score-count').innerText = totalStars;
+        document.getElementById('menu-stars-count').innerText = totalStars;
+
+        if(localStorage.getItem('completedCategories')) {
+            completedCategories = JSON.parse(localStorage.getItem('completedCategories'));
+        }
+
+        let medalCount = 0;
+        const availableKeys = ['animals', 'clothes', 'nature', 'weather', 'vegetables', 'fruit'];
+        
+        availableKeys.forEach(key => {
+            if(completedCategories[key]) {
+                medalCount++;
+                const medalBadge = document.getElementById(`medal-${key}`);
+                if(medalBadge) medalBadge.style.display = "inline-block";
+            }
+        });
+
+        document.getElementById('menu-medals-count').innerText = `${medalCount} / 6`;
+    }
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function playTone(freq, type, duration, startTimeOffset, customGain = 0.25) {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const t = audioCtx.currentTime + startTimeOffset;
+        osc.start(t);
+        gain.gain.setValueAtTime(customGain, t);
+        gain.gain.exponentialRampToValueAtTime(0.00001, t + duration);
+        osc.stop(t + duration);
+    }
+
+    function playPopSound() { playTone(460, 'sine', 0.08, 0, 0.15); }
+    
+    function playSuccessSound() {
+        const factor = isFireModeActive ? 1.3 : 1.0; 
+        playTone(523.25 * factor, 'sine', 0.12, 0);     
+        setTimeout(() => playTone(659.25 * factor, 'sine', 0.12, 0.07), 70);  
+        setTimeout(() => playTone(783.99 * factor, 'sine', 0.15, 0.14), 140);  
+    }
+    
+    function playErrorSound() {
+        playTone(220, 'triangle', 0.18, 0);    
+        setTimeout(() => playTone(147, 'triangle', 0.35, 0.12), 120);   
+    }
+
+    /* SONIDO MEJORADO: Trompetas Celestiales / Fanfarria de Victoria */
+    function playTrumpetVictorySound() {
+        initAudio();
+        // Nota 1
+        playTone(523.25, 'sawtooth', 0.15, 0, 0.15); // C5
+        playTone(523.25, 'triangle', 0.15, 0, 0.2);
+        // Nota 2
+        setTimeout(() => {
+            playTone(523.25, 'sawtooth', 0.15, 0, 0.15);
+            playTone(523.25, 'triangle', 0.15, 0, 0.2);
+        }, 150);
+        // Nota 3
+        setTimeout(() => {
+            playTone(523.25, 'sawtooth', 0.15, 0, 0.15);
+            playTone(523.25, 'triangle', 0.15, 0, 0.2);
+        }, 300);
+        // Acorde Triunfal Final Largo (Trompetas combinadas)
+        setTimeout(() => {
+            playTone(523.25, 'sawtooth', 0.6, 0, 0.1);  // C5
+            playTone(659.25, 'sawtooth', 0.6, 0, 0.1);  // E5
+            playTone(783.99, 'sawtooth', 0.8, 0, 0.15); // G5
+            playTone(1046.50, 'sine', 0.8, 0, 0.2);     // C6 Alto brillo
+        }, 450);
+    }
+
+    function startChallengeMode() {
+        isChallengeMode = true;
+        challengeLives = 3;
+        streakCount = 0; 
+        isFireModeActive = false;
+        checkFireVisualStatus();
+        document.getElementById('lives-display').style.display = "block";
+        document.getElementById('lives-display').innerText = "❤️ ❤️ ❤️";
+
+        let completeMix = [...dataset.animals, ...dataset.clothes, ...dataset.nature, ...dataset.weather, ...dataset.vegetables, ...dataset.fruit];
+        for (let i = completeMix.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [completeMix[i], completeMix[j]] = [completeMix[j], completeMix[i]];
+        }
+        currentCategory = completeMix.slice(0, 15);
+        currentCategoryKey = "challenge";
+        renderCards();
+        toggleNavigationVisibility(false);
+    }
+
+    function startCategory(catKey) {
+        isChallengeMode = false;
+        streakCount = 0; 
+        isFireModeActive = false;
+        checkFireVisualStatus();
+        document.getElementById('lives-display').style.display = "none";
+        currentCategoryKey = catKey;
+        currentCategory = dataset[catKey];
+        renderCards();
+        toggleNavigationVisibility(true);
+    }
+
+    function toggleNavigationVisibility(visible) {
+        const backButtons = document.querySelectorAll('.btn-back-class');
+        const nextButtons = document.querySelectorAll('.btn-next-class');
+        backButtons.forEach(b => b.style.visibility = visible ? "visible" : "hidden");
+        nextButtons.forEach(n => n.style.visibility = visible ? "visible" : "hidden");
+    }
+
+    function renderCards() {
+        playPopSound();
+        currentCardIndex = 0;
+        isHiddenState = false;
+        isWritingMode = false;
+        document.getElementById('cards-wrapper').style.display = "block";
+        document.getElementById('nav-wrapper-bottom').style.display = "flex";
+        document.getElementById('victory-panel').style.display = "none";
+
+        const wrapper = document.getElementById('cards-wrapper');
+        wrapper.innerHTML = "";
+        
+        currentCategory.forEach((item, idx) => {
+            const activeClass = (idx === 0) ? "active" : "";
+            const tagLabel = isChallengeMode ? "ULTRA CHALLENGE MODE" : item.habitat;
+
+            wrapper.innerHTML += `
+                <div class="vocab-card ${activeClass}" id="card-element-${idx}" data-word="${item.word.toLowerCase()}" data-bg="${item.bg}">
+                    <div class="header-info">✨ ${tagLabel} • LingoUp Premium</div>
+                    
+                    <!-- 1. CONCEPT (Word + Translation) -->
+                    <div class="vocab-word" id="word-txt-${idx}">${idx + 1}. ${item.word}</div>
+                    <div class="vocab-translation" id="translation-txt-${idx}">${item.translation}</div>
+                    
+                    <!-- RECUADRO DE FEEDBACK -->
+                    <div id="feedback-${idx}" class="feedback-msg">
+                        <div class="feedback-badge" id="badge-${idx}"></div>
+                        <div class="feedback-text" id="text-${idx}"></div>
+                    </div>
+
+                    <!-- GRAMMAR WRITE EXTRA CHALLENGE BOX -->
+                    <div class="write-challenge-box" id="write-box-${idx}">
+                        <p style="margin:0 0 10px 0; font-weight:600; color:#475569;">Write the word accurately in English:</p>
+                        <input type="text" id="write-input-${idx}" placeholder="Type here..." autocomplete="off">
+                        <br>
+                        <button onclick="submitWrittenAnswer(${idx}, '${item.word.toLowerCase()}')">Check Grammar</button>
+                    </div>
+
+                    <!-- 2. DEFINITION -->
+                    <div class="vocab-definition" id="def-box-${idx}">${item.def}</div>
+                    
+                    <!-- 3. IMAGE -->
+                    <div class="image-container" id="box-container-${idx}" style="background-color: ${item.bg}; border: 3px solid rgba(0,0,0,0.05); margin-bottom: 15px;">
+                        ${item.combo}
+                    </div>
+
+                    <!-- 4. NAVIGATION BUTTONS -->
+                    <div class="inline-nav-buttons">
+                        <button class="nav-btn btn-back-class" onclick="changeCard(-1)">◀ Back</button>
+                        <button class="nav-btn btn-next-class" style="background: rgba(15,23,42,0.1); font-weight: bold;" onclick="changeCard(1)">Next ▶</button>
+                    </div>
+                    
+                    <!-- 5. ACTIVITY CONTROLS -->
+                    <div class="audio-controls">
+                        <button class="btn-card audio-button" id="listen-btn-${idx}" onclick="pronounceWord('${item.word}')">🔊 Listen</button>
+                        <button class="btn-card mic-button" id="mic-btn-${idx}" onclick="checkPronunciation('${item.word.toLowerCase()}', ${idx})">🎙️ Practice</button>
+                        <button class="btn-card write-button" id="write-btn-${idx}" onclick="toggleWritingActivity(${idx})">✍️ Write & Check</button>
+                        <button class="btn-card guess-button" id="guess-btn-${idx}" onclick="toggleHiddenActivity(${idx}, '${item.word}')">👁️ Guess & Speak</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        document.getElementById('main-menu').style.display = "none";
+        document.getElementById('top-bar').style.display = "flex";
+        document.getElementById('app-box').style.display = "block";
+        updateTheme();
+        if(isChallengeMode) toggleNavigationVisibility(false);
+    }
+
+    function toggleWritingActivity(idx) {
+        playPopSound();
+        const writeBox = document.getElementById(`write-box-${idx}`);
+        const defBox = document.getElementById(`def-box-${idx}`);
+        const wordTitle = document.getElementById(`word-txt-${idx}`);
+        const translationText = document.getElementById(`translation-txt-${idx}`);
+        const containerBox = document.getElementById(`box-container-${idx}`);
+        const listenBtn = document.getElementById(`listen-btn-${idx}`);
+        const micBtn = document.getElementById(`mic-btn-${idx}`);
+        const guessBtn = document.getElementById(`guess-btn-${idx}`);
+
+        if (!isWritingMode) {
+            isWritingMode = true;
+            writeBox.style.display = "block";
+            defBox.style.display = "none"; 
+            wordTitle.innerText = `${idx + 1}. ???`;
+            translationText.style.opacity = "1"; 
+            containerBox.style.display = "none";
+            listenBtn.style.visibility = "hidden";
+            micBtn.style.visibility = "hidden";
+            guessBtn.style.visibility = "hidden";
+            document.getElementById(`write-input-${idx}`).focus();
+        } else {
+            isWritingMode = false;
+            renderCards();
+        }
+    }
+
+    function submitWrittenAnswer(idx, correctWord) {
+        const userInput = document.getElementById(`write-input-${idx}`).value.toLowerCase().trim();
+        const currentFeedback = document.getElementById(`feedback-${idx}`);
+        const currentBadge = document.getElementById(`badge-${idx}`);
+        const currentText = document.getElementById(`text-${idx}`);
+        const appBox = document.getElementById('app-box');
+
+        // Activamos y mostramos siempre el recuadro de feedback
+        currentFeedback.style.display = "flex";
+
+        if(userInput === correctWord) {
+            streakCount++;
+            checkFireVisualStatus();
+
+            let finalPrizeStars = isFireModeActive ? 2 : 1;
+            currentText.innerText = `Perfect Spelling! Grammatically correct.\n+${finalPrizeStars} Stars!`;
+            currentBadge.innerHTML = "⭐"; 
+            currentFeedback.className = "feedback-msg feedback-success";
+            
+            playSuccessSound(); 
+            totalStars += finalPrizeStars;
+            document.getElementById('score-count').innerText = totalStars;
+            localStorage.setItem('totalStars', totalStars);
+
+            setTimeout(() => { changeCard(1); }, 2000);
+        } else {
+            streakCount = 0;
+            checkFireVisualStatus();
+
+            playErrorSound(); 
+            appBox.classList.add('shake-animation');
+            setTimeout(() => appBox.classList.remove('shake-animation'), 400);
+
+            currentText.innerText = `Spelling Error! Try again or check details.\nYour answer: "${userInput}"`;
+            currentBadge.innerText = "❌";
+            currentFeedback.className = "feedback-msg feedback-error";
+        }
+    }
+
+    function toggleHiddenActivity(idx, originalWord) {
+        playPopSound();
+        const wordTitle = document.getElementById(`word-txt-${idx}`);
+        const translationText = document.getElementById(`translation-txt-${idx}`);
+        const defBox = document.getElementById(`def-box-${idx}`);
+        const containerBox = document.getElementById(`box-container-${idx}`);
+        const listenBtn = document.getElementById(`listen-btn-${idx}`);
+        const guessBtn = document.getElementById(`guess-btn-${idx}`);
+
+        if(!isHiddenState) {
+            isHiddenState = true;
+            wordTitle.innerText = `${idx + 1}. ???`;
+            translationText.style.opacity = "0";
+            defBox.style.opacity = "0"; 
+            containerBox.classList.add("mystery-box");
+            containerBox.innerHTML = `❓`;
+            listenBtn.style.visibility = "hidden";
+            guessBtn.innerHTML = `👁️ Reveal Details`;
+            guessBtn.style.background = "#f1f5f9";
+        } else {
+            isHiddenState = false;
+            renderCards();
+        }
+    }
+
+    function goToMenu() {
+        playPopSound();
+        streakCount = 0;
+        isFireModeActive = false;
+        checkFireVisualStatus();
+        document.getElementById('app-box').style.display = "none";
+        document.getElementById('top-bar').style.display = "none";
+        document.getElementById('main-menu').style.display = "block";
+        document.body.style.background = "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)";
+        
+        loadProgressData();
+    }
+
+    function updateTheme() {
+        const cards = document.querySelectorAll('.vocab-card');
+        if(cards.length === 0 || currentCardIndex >= cards.length) return;
+        const currentCard = cards[currentCardIndex];
+        const newBg = currentCard.getAttribute('data-bg');
+        document.body.style.background = `linear-gradient(135deg, ${newBg} 0%, #ffffff 100%)`;
+        const progressPercent = ((currentCardIndex + 1) / cards.length) * 100;
+        document.getElementById('p-bar').style.width = `${progressPercent}%`;
+    }
+
+    function checkFireVisualStatus() {
+        const appBox = document.getElementById('app-box');
+        const fireBadge = document.getElementById('streak-fire');
+
+        if (streakCount >= 3) {
+            isFireModeActive = true;
+            appBox.classList.add('gold-glow');
+            fireBadge.style.display = "block";
+        } else {
+            isFireModeActive = false;
+            appBox.classList.remove('gold-glow');
+            fireBadge.style.display = "none";
+        }
+    }
+
+    function changeCard(direction) {
+        playPopSound();
+        const cards = document.querySelectorAll('.vocab-card');
+        if(cards.length === 0) return;
+        
+        const currentFeedback = document.getElementById(`feedback-${currentCardIndex}`);
+        if(currentFeedback) currentFeedback.style.display = "none";
+
+        cards[currentCardIndex].classList.remove('active');
+        currentCardIndex += direction;
+        isHiddenState = false; 
+        isWritingMode = false;
+
+        if (currentCardIndex >= cards.length) {
+            triggerVictory(true);
+            return;
+        } 
+        else if (currentCardIndex < 0) { 
+            currentCardIndex = cards.length - 1; 
+        }
+
+        cards[currentCardIndex].classList.add('active');
+        updateTheme();
+        if(isChallengeMode) toggleNavigationVisibility(false);
+    }
+
+    /* EFECTO DE SERPENTINA Y CELEBRACIÓN */
+    function launchPremiumConfetti() {
+        // Disparos desde la izquierda
+        confetti({
+            particleCount: 80,
+            angle: 60,
+            spread: 70,
+            origin: { x: 0, y: 0.8 },
+            colors: ['#2563eb', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6']
+        });
+        // Disparos desde la derecha
+        confetti({
+            particleCount: 80,
+            angle: 120,
+            spread: 70,
+            origin: { x: 1, y: 0.8 },
+            colors: ['#2563eb', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6']
+        });
+        
+        // Ráfaga central de serpentinas cayendo lento
+        setTimeout(() => {
+            confetti({
+                particleCount: 50,
+                spread: 100,
+                origin: { x: 0.5, y: 0.3 },
+                drift: 0.5,
+                ticks: 300
+            });
+        }, 300);
+    }
+
+    function triggerVictory(isSucessfulReport) {
+        document.getElementById('cards-wrapper').style.display = "none";
+        document.getElementById('nav-wrapper-bottom').style.display = "none";
+        document.getElementById('victory-panel').style.display = "block";
+        document.getElementById('streak-fire').style.display = "none";
+
+        const iconEl = document.getElementById('victory-icon');
+        const headEl = document.getElementById('victory-headline');
+        const textEl = document.getElementById('victory-text');
+
+        if(isSucessfulReport) {
+            completedCategories[currentCategoryKey] = true;
+            localStorage.setItem('completedCategories', JSON.stringify(completedCategories));
+            iconEl.innerText = "🎺👑🎺";
+            headEl.innerText = "Level Completed!";
+            textEl.innerText = "Outstanding work! You have perfectly mastered all concepts in this module.";
+            document.body.style.background = "linear-gradient(135deg, #dcfce7 0%, #e8f5e9 100%)";
+            
+            // Ejecución de los efectos premium solicitados
+            playTrumpetVictorySound();
+            launchPremiumConfetti();
+        } else {
+            playTone(220, 'triangle', 0.18, 0); 
+            iconEl.innerText = "💀";
+            headEl.innerText = "Game Over!";
+            textEl.innerText = "You ran out of lives in the Mixed Ultra Challenge. Review and try again!";
+            document.body.style.background = "linear-gradient(135deg, #fef2f2 0%, #ffebee 100%)";
+        }
+    }
+
+    function pronounceWord(wordText) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(wordText);
+            utterance.lang = 'en-US'; 
+            utterance.rate = 0.82;     
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    function checkPronunciation(expectedWord, index) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const currentFeedback = document.getElementById(`feedback-${index}`);
+        const currentBadge = document.getElementById(`badge-${index}`);
+        const currentText = document.getElementById(`text-${index}`);
+        const appBox = document.getElementById('app-box');
+        
+        if (!SpeechRecognition) {
+            currentText.innerText = "Speech recognition is not supported on your browser. Please use Google Chrome.";
+            currentBadge.innerText = "⚠️";
+            currentFeedback.className = "feedback-msg feedback-error";
+            currentFeedback.style.display = "flex";
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        currentText.innerText = "Listening... Speak now!";
+        currentBadge.innerText = "🎙️";
+        currentFeedback.className = "feedback-msg feedback-listening";
+        currentFeedback.style.display = "flex";
+        recognition.start();
+
+        recognition.onresult = function(event) {
+            const spokenText = event.results[0][0].transcript.toLowerCase().trim();
+            
+            // Forzamos visibilidad clara del recuadro
+            currentFeedback.style.display = "flex";
+
+            if (spokenText.includes(expectedWord)) {
+                streakCount++;
+                checkFireVisualStatus(); 
+
+                let baseStars = isHiddenState ? 2 : 1;
+                let finalPrizeStars = isFireModeActive ? (baseStars * 2) : baseStars;
+
+                if(isFireModeActive) {
+                    currentText.innerText = `🔥 3-STREAK MULTIPLIER! ULTRA x2 STARS! 🔥\n+${finalPrizeStars} Stars! Detected: "${spokenText}"`;
+                } else {
+                    currentText.innerText = `Brilliant execution! Current Streak: ${streakCount}\nDetected: "${spokenText}"`;
+                }
+
+                if(isHiddenState) {
+                    toggleHiddenActivity(index, currentCategory[index].word);
+                }
+
+                currentBadge.innerHTML = "⭐"; 
+                currentFeedback.className = "feedback-msg feedback-success";
+                
+                playSuccessSound(); 
+                totalStars += finalPrizeStars;
+                document.getElementById('score-count').innerText = totalStars;
+                localStorage.setItem('totalStars', totalStars);
+
+                setTimeout(() => { changeCard(1); }, 2000);
+
+            } else {
+                streakCount = 0;
+                checkFireVisualStatus();
+
+                playErrorSound(); 
+                appBox.classList.add('shake-animation');
+                setTimeout(() => appBox.classList.remove('shake-animation'), 400);
+
+                if(isChallengeMode) {
+                    challengeLives--;
+                    let hearts = "";
+                    for(let l=0; l<challengeLives; l++) hearts += "❤️ ";
+                    if(challengeLives === 0) hearts = "❌ No lives left";
+                    document.getElementById('lives-display').innerText = hearts;
+
+                    if(challengeLives <= 0) {
+                        currentText.innerText = `Incorrect phrase: "${spokenText}"\nYou lost your final life!`;
+                        currentBadge.innerText = "💀";
+                        currentFeedback.className = "feedback-msg feedback-error";
+                        setTimeout(() => { triggerVictory(false); }, 1500);
+                        return;
+                    } else {
+                        currentText.innerText = `Try again!\nDetected: "${spokenText}"\nYou lost 1 life! Streak reset to 0.`;
+                        currentBadge.innerText = "❌";
+                        currentFeedback.className = "feedback-msg feedback-error";
+                    }
+                } else {
+                    currentText.innerText = `Close try... Fire extinguished! Streak reset to 0.\nDetected: "${spokenText}"`;
+                    currentBadge.innerText = "✗"; 
+                    currentFeedback.className = "feedback-msg feedback-error";
+                }
+            }
+        };
+
+        recognition.onerror = function() {
+            streakCount = 0;
+            checkFireVisualStatus();
+            currentText.innerText = "Network or microphone access error.";
+            currentBadge.innerText = "✗";
+            currentFeedback.className = "feedback-msg feedback-error";
+            currentFeedback.style.display = "flex";
+            playErrorSound();
+        };
+    }
+</script>
+</body>
+</html>
